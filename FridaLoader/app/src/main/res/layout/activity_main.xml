@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity"
+    >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="2dp"
+        android:background="@color/colorPrimaryDark"
+        android:id="@+id/mainrel">
+
+        <ProgressBar
+            android:id="@+id/progressBarOne"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:progressTint="@color/colorAccent" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/progressBarOne"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textViewActionProgress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:layout_weight="1"
+
+                android:textAlignment="center" />
+
+            <Button
+                android:id="@+id/button_cancel_frida"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:text="CANCEL PROCESS" />
+
+            <Button
+                android:id="@+id/button_download_frida"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:text="DOWNLOAD &amp; RUN" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="2dp"
+        android:padding="4dp"
+        android:background="@color/colorPrimaryDark">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:text="Current Frida Status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:layout_weight="1"
+                android:textAlignment="center" />
+
+            <TextView
+                android:id="@+id/fridaStatusTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:text="Searching..." />
+
+        </LinearLayout>
+    </RelativeLayout>
+
+    <life.sabujak.roundedbutton.RoundedButton
+    android:id="@+id/reCheckFridaStatus"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="24dp"
+    android:gravity="center"
+    android:padding="24dp"
+    android:textSize="20dp"
+    android:text="Recheck Frida Status"
+    android:textColor="#ffffff"
+    app:buttonGradientStartColor="@color/colorPrimary"
+    app:buttonGradientEndColor="@color/colorAccent"
+    app:buttonCornerRadius="20dp"
+        android:layout_centerInParent="true"
+    />
+
+
+</LinearLayout>
