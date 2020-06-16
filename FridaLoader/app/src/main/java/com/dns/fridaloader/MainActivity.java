@@ -106,7 +106,8 @@ public class MainActivity extends AppCompatActivity {
     public void setupFridaURL() {
         HttpURLConnectionGetRequest requestTypeOne = new HttpURLConnectionGetRequest();
         try {
-            receivedData = requestTypeOne.execute(request_endpoint, "abcd").get().toString();
+            String archType = execSomeCommandAndGetResponse("getprop ro.product.cpu.abi");
+            receivedData = requestTypeOne.execute(request_endpoint, archType).get().toString();
             System.out.println("receivedData = "+receivedData);
             if(!receivedData.contains("ERROR")){
                 System.out.println("Frida URL found = "+frida_url_prefix.concat(receivedData));
@@ -122,6 +123,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void performDownloadAndStartFrida() {
+
+        showFridaArchSelection();
 
         setupFridaURL();
 
@@ -233,13 +236,60 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void showFridaArchSelection() {
+        //$$$$
+
+//        CFAlertDialog.Builder builder = new CFAlertDialog.Builder(this)
+//                .setDialogStyle(CFAlertDialog.CFAlertStyle.ALERT)
+//                .setTitle("Select Current Architecture")
+//                .setMessage("Frida Server (frida-server-latest) is current not running. How do you want to proceed?")
+//                .addButton("Install & Run Latest Frida Server", -1, -1, CFAlertDialog.CFAlertActionStyle.POSITIVE, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
+//                    performDownloadAndStartFrida();
+//                    dialog.dismiss();
+//                })
+//                .addButton("Force Start Existing Frida Server", -1, -1, CFAlertDialog.CFAlertActionStyle.DEFAULT, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
+//
+//                    String status = executeCommand("su 0 ls /data/local/tmp/frida-server-latest", false);
+//                    if (!status.contains("frida-server-latest")) {
+//                        System.out.println("No such file or directory");
+//                        fridaStatusTextView.setText("Server Not Found");
+//                        fridaStatusTextView.setTextColor(Color.parseColor("#A50104"));
+//
+//                        StyleableToast.makeText(MainActivity.this, "Server Not Found", Toast.LENGTH_LONG, R.style.red).show();
+//                    }else{
+//                        StyleableToast.makeText(MainActivity.this, "Server Found. Starting it now.", Toast.LENGTH_LONG, R.style.green).show();
+//                        executeCommand("su 0 /data/local/tmp/frida-server-latest &", true);
+//                        SystemClock.sleep(2000);
+//                        fridaStatusTextView.setText("Running");
+//                        fridaStatusTextView.setTextColor(Color.parseColor("#ACF7C1"));
+//                        doFridaStuff();
+//                    }
+//                    dialog.dismiss();
+//                })
+//                .addButton("Continue", -1, -1, CFAlertDialog.CFAlertActionStyle.DEFAULT, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
+//                    dialog.dismiss();
+//                });
+//        builder.show();
+    }
+
     private boolean checkFridaStatusCode() {
         String status = executeCommand("su 0 ps -A", false);
         if (status.contains("frida-server-latest")) {
         return true;
         }else{
-            return false;
+            status = executeCommand("su 0 ps", false);
+            if (status.contains("frida-server-latest")) {
+                return true;
+            }else{
+                return false;
+            }
         }
+    }
+
+    private String execSomeCommandAndGetResponse(String command) {
+        //example command = "su 0 ps -A"
+        String response = executeCommand(command, false);
+        return response;
     }
 
     private void fridaAlreadyRunning() {
