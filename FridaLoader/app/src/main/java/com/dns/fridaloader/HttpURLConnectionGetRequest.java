@@ -22,6 +22,7 @@ class HttpURLConnectionGetRequest extends AsyncTask<String, Void, String> {
         try {
 
             URL siteURL = new URL(parameters[0]);
+            System.out.println(parameters[1]);
            // System.out.println("YES HttpURLConnectionGetRequest ");
             HttpURLConnection httpConn = (HttpURLConnection) siteURL.openConnection();
             httpConn.setRequestMethod("GET");

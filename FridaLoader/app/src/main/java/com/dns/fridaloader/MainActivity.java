@@ -65,20 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
         reCheckStatusButton = (RoundedButton) findViewById(R.id.reCheckFridaStatus);
 
-        HttpURLConnectionGetRequest requestTypeOne = new HttpURLConnectionGetRequest();
-        try {
-            receivedData = requestTypeOne.execute(request_endpoint).get().toString();;
-           // System.out.println("receivedData = "+receivedData);
-            if(!receivedData.contains("ERROR")){
-                System.out.println("Frida URL found = "+frida_url_prefix.concat(receivedData));
-                URL1 = frida_url_prefix.concat(receivedData);
-            }else{
-                System.out.println("Something Went Wrong while finding latest branch so fallback to older version");
-                URL1 = "https://github.com/frida/frida/releases/download/12.6.6/frida-server-12.6.6-android-x86.xz";
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
 
         performDownload.setOnClickListener( new View.OnClickListener() {
 
@@ -102,6 +89,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void doFridaStuff() {
+
+       // setupFridaURL();
+
         Boolean fridaStatus = checkFridaStatusCode();
         if(fridaStatus){
             //frida already running
@@ -113,7 +103,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    public void setupFridaURL() {
+        HttpURLConnectionGetRequest requestTypeOne = new HttpURLConnectionGetRequest();
+        try {
+            receivedData = requestTypeOne.execute(request_endpoint, "abcd").get().toString();
+            System.out.println("receivedData = "+receivedData);
+            if(!receivedData.contains("ERROR")){
+                System.out.println("Frida URL found = "+frida_url_prefix.concat(receivedData));
+                URL1 = frida_url_prefix.concat(receivedData);
+            }else{
+                System.out.println("Something Went Wrong while finding latest branch so fallback to older version");
+                URL1 = "https://github.com/frida/frida/releases/download/12.6.6/frida-server-12.6.6-android-x86.xz";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
     private void performDownloadAndStartFrida() {
+
+        setupFridaURL();
 
         if (Status.RUNNING == PRDownloader.getStatus(downloadIdOne)) {
             PRDownloader.pause(downloadIdOne);
