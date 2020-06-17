@@ -53,9 +53,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+       // executeCommand("su -c /system/bin/cp /data/local/tmp/blah.txt /data/local/tmp/blah2.txt", true);
+        executeCommand("su 0 /system/bin/cp /data/local/tmp/blah.txt /data/local/tmp/blah2.txt", false);
+      //  executeCommand("su 0 /system/bin/cp /data/local/tmp/blah.txt /data/local/tmp/blah2.txt", false);
 
         //handle super user permissions
-        executeCommand("su 0 ls", true);
+        //executeCommand("su -c /system/bin/ls", true);
+        executeCommand("su 0 /system/bin/ls", true);
         dirPath = Util.getRootDirPath(getApplicationContext());
         performDownloadCancel = (Button) findViewById(R.id.button_cancel_frida);
         downloadProgressBar = (ProgressBar) findViewById(R.id.progressBarOne);
@@ -64,9 +68,6 @@ public class MainActivity extends AppCompatActivity {
         performDownload = (Button) findViewById(R.id.button_download_frida);
 
         reCheckStatusButton = (RoundedButton) findViewById(R.id.reCheckFridaStatus);
-
-
-
         performDownload.setOnClickListener( new View.OnClickListener() {
 
             @Override
@@ -123,8 +124,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void performDownloadAndStartFrida() {
-
-        showFridaArchSelection();
 
         setupFridaURL();
 
@@ -187,7 +186,6 @@ public class MainActivity extends AppCompatActivity {
                     public void onDownloadComplete() {
                         performDownloadCancel.setEnabled(false);
                         performDownload.setText("DOWNLOAD & RUN AGAIN");
-
                         System.out.println("Now uncompressing");
                         try {
                             FileInputStream fin = new FileInputStream("/storage/emulated/0/Android/data/com.dns.fridaloader/files/" + "frida-server-latest-xz.xz");
@@ -199,23 +197,24 @@ public class MainActivity extends AppCompatActivity {
                             while (-1 != (n = xzIn.read(buffer))) {
                                 out.write(buffer, 0, n);
                             }
-                            out.close();
                             xzIn.close();
+                            fin.close();
+                            out.close();
                         }
                         catch(Exception e) {
                             Log.e("Decompress", "unzip", e);
                         }
-
-                        executeCommand("su 0 cp /storage/emulated/0/Android/data/com.dns.fridaloader/files/frida-server-latest-decompressed /data/local/tmp/frida-server-latest", true);
+                        //executeCommand("su -c /system/bin/cp\\ /storage/emulated/0/Android/data/com.dns.fridaloader/files/frida-server-latest-decompressed\\ /data/local/tmp/frida-server-latest", false);
+                        executeCommand("su 0 /system/bin/cp /storage/emulated/0/Android/data/com.dns.fridaloader/files/frida-server-latest-decompressed /data/local/tmp/frida-server-latest", false);
                         SystemClock.sleep(2000);
-
-                        executeCommand("su 0 chmod +x /data/local/tmp/frida-server-latest", true);
+                        //executeCommand("su -c /system/bin/chmod\\ \\+x\\ /data/local/tmp/frida-server-latest", true);
+                        executeCommand("su 0 /system/bin/chmod +x /data/local/tmp/frida-server-latest", true);
                         SystemClock.sleep(2000);
+                        //executeCommand("su -c /data/local/tmp/frida-server-latest &", true);
                         executeCommand("su 0 /data/local/tmp/frida-server-latest &", true);
                         SystemClock.sleep(2000);
                         fridaStatusTextView.setText("Running");
                         fridaStatusTextView.setTextColor(Color.parseColor("#ACF7C1"));
-
                         doFridaStuff();
                         reCheckStatusButton.setEnabled(true);
                     }
@@ -223,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onError(Error error) {
                         performDownload.setText("Start");
-                        Toast.makeText(getApplicationContext(), "Something Went Wrong" + " " + "1", Toast.LENGTH_SHORT).show();
+                        StyleableToast.makeText(MainActivity.this, "Something Went Wrong" + " " + "1", Toast.LENGTH_LONG, R.style.red).show();
                         textViewActionProgress.setText("");
                         downloadProgressBar.setProgress(0);
                         downloadIdOne = 0;
@@ -236,48 +235,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void showFridaArchSelection() {
-        //$$$$
-
-//        CFAlertDialog.Builder builder = new CFAlertDialog.Builder(this)
-//                .setDialogStyle(CFAlertDialog.CFAlertStyle.ALERT)
-//                .setTitle("Select Current Architecture")
-//                .setMessage("Frida Server (frida-server-latest) is current not running. How do you want to proceed?")
-//                .addButton("Install & Run Latest Frida Server", -1, -1, CFAlertDialog.CFAlertActionStyle.POSITIVE, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
-//                    performDownloadAndStartFrida();
-//                    dialog.dismiss();
-//                })
-//                .addButton("Force Start Existing Frida Server", -1, -1, CFAlertDialog.CFAlertActionStyle.DEFAULT, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
-//
-//                    String status = executeCommand("su 0 ls /data/local/tmp/frida-server-latest", false);
-//                    if (!status.contains("frida-server-latest")) {
-//                        System.out.println("No such file or directory");
-//                        fridaStatusTextView.setText("Server Not Found");
-//                        fridaStatusTextView.setTextColor(Color.parseColor("#A50104"));
-//
-//                        StyleableToast.makeText(MainActivity.this, "Server Not Found", Toast.LENGTH_LONG, R.style.red).show();
-//                    }else{
-//                        StyleableToast.makeText(MainActivity.this, "Server Found. Starting it now.", Toast.LENGTH_LONG, R.style.green).show();
-//                        executeCommand("su 0 /data/local/tmp/frida-server-latest &", true);
-//                        SystemClock.sleep(2000);
-//                        fridaStatusTextView.setText("Running");
-//                        fridaStatusTextView.setTextColor(Color.parseColor("#ACF7C1"));
-//                        doFridaStuff();
-//                    }
-//                    dialog.dismiss();
-//                })
-//                .addButton("Continue", -1, -1, CFAlertDialog.CFAlertActionStyle.DEFAULT, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
-//                    dialog.dismiss();
-//                });
-//        builder.show();
-    }
-
     private boolean checkFridaStatusCode() {
-        String status = executeCommand("su 0 ps -A", false);
+        //String status = executeCommand("su -c /system/bin/ps\\ -A", false);
+        String status = executeCommand("su 0 /system/bin/ps -A", false);
         if (status.contains("frida-server-latest")) {
         return true;
         }else{
-            status = executeCommand("su 0 ps", false);
+            //status = executeCommand("su -c /system/bin/ps", false);
+            status = executeCommand("su 0 /system/bin/ps", false);
             if (status.contains("frida-server-latest")) {
                 return true;
             }else{
@@ -287,7 +252,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String execSomeCommandAndGetResponse(String command) {
-        //example command = "su 0 ps -A"
+        //example command = "su -c /system/bin/ps -A"
         String response = executeCommand(command, false);
         return response;
     }
@@ -302,22 +267,35 @@ public class MainActivity extends AppCompatActivity {
                     .setTitle("Frida Status")
                     .setMessage("Frida Server (frida-server-latest) is already running. How do you want to proceed?")
                     .addButton("Download & Run Latest Frida Server", -1, -1, CFAlertDialog.CFAlertActionStyle.POSITIVE, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
-                        Toast.makeText(MainActivity.this, "Upgrade tapped", Toast.LENGTH_SHORT).show();
-                        executeCommand("su 0 killall frida-server-latest &", false);
-                        executeCommand("su 0 killall frida-server-latest &", false);
+                      //  Toast.makeText(MainActivity.this, "Upgrade tapped", Toast.LENGTH_SHORT).show();
+                        if(checkFridaStatusCode()) {
+                            // sometimes we have to run kill twice for it to work
+                            //executeCommand("su -c /system/bin/killall\\ frida-server-latest", false);
+                            executeCommand("su 0 /system/bin/killall frida-server-latest", false);
+                        }
+                     //   executeCommand("su -c /system/bin/killall\\ frida-server-latest", false);
+                       if(checkFridaStatusCode()) {
+                           // sometimes we have to run kill twice for it to work
+                           //executeCommand("su -c /system/bin/killall\\ frida-server-latest", false);
+                           executeCommand("su 0 /system/bin/killall frida-server-latest", false);
+                       }
+                        dialog.dismiss();
                         fridaStatusTextView.setText("Terminated");
                         performDownloadAndStartFrida();
                         SystemClock.sleep(2000);
                         doFridaStuff();
-                        dialog.dismiss();
                     })
                     .addButton("KILL Frida Server", -1, -1, CFAlertDialog.CFAlertActionStyle.NEGATIVE, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
-                Toast.makeText(MainActivity.this, "Kill Frida tapped", Toast.LENGTH_SHORT).show();
-                executeCommand("su 0 killall frida-server-latest &", false);
-                fridaStatusTextView.setText("Terminated");
+                        if(checkFridaStatusCode()) {
+                            // sometimes we have to run kill twice for it to work
+                            //executeCommand("su -c /system/bin/killall\\ frida-server-latest", false);
+                            executeCommand("su 0 /system/bin/killall frida-server-latest", false);
+                        }
+                        dialog.dismiss();
+                        fridaStatusTextView.setText("Terminated");
                 SystemClock.sleep(2000);
+
                 doFridaStuff();
-                dialog.dismiss();
             }).addButton("Continue", -1, -1, CFAlertDialog.CFAlertActionStyle.DEFAULT, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
                         dialog.dismiss();
                     });
@@ -338,22 +316,25 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .addButton("Force Start Existing Frida Server", -1, -1, CFAlertDialog.CFAlertActionStyle.DEFAULT, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
 
-                    String status = executeCommand("su 0 ls /data/local/tmp/frida-server-latest", false);
+                    //String status = executeCommand("su -c /system/bin/ls\\ /data/local/tmp/frida-server-latest", false);
+                    String status = executeCommand("su 0 /system/bin/ls /data/local/tmp/frida-server-latest", false);
                     if (!status.contains("frida-server-latest")) {
                         System.out.println("No such file or directory");
+                        dialog.dismiss();
                         fridaStatusTextView.setText("Server Not Found");
                         fridaStatusTextView.setTextColor(Color.parseColor("#A50104"));
 
                         StyleableToast.makeText(MainActivity.this, "Server Not Found", Toast.LENGTH_LONG, R.style.red).show();
                     }else{
                         StyleableToast.makeText(MainActivity.this, "Server Found. Starting it now.", Toast.LENGTH_LONG, R.style.green).show();
+                       // executeCommand("su -c /data/local/tmp/frida-server-latest &", true);
                         executeCommand("su 0 /data/local/tmp/frida-server-latest &", true);
+                        dialog.dismiss();
                         SystemClock.sleep(2000);
                         fridaStatusTextView.setText("Running");
                         fridaStatusTextView.setTextColor(Color.parseColor("#ACF7C1"));
                         doFridaStuff();
                     }
-                    dialog.dismiss();
                 })
                 .addButton("Continue", -1, -1, CFAlertDialog.CFAlertActionStyle.DEFAULT, CFAlertDialog.CFAlertActionAlignment.JUSTIFIED, (dialog, which) -> {
                     dialog.dismiss();
@@ -370,6 +351,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             Process process = Runtime.getRuntime().exec(command);
             if (standardOutExclude) {
+              //  process.waitFor();
                 return "";
             }
             reader = new BufferedReader(new InputStreamReader(process.getInputStream()));

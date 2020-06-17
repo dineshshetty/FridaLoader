@@ -30,7 +30,7 @@ dependencies {
 }
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.mindorks.android:prdownloader:0.6.0'
+    implementation 'com.mindorks.android:prdownloader:+'
     implementation 'com.muddzdev:styleabletoast:+'
 
 
