@@ -154,7 +154,6 @@ public class MainActivity extends AppCompatActivity {
             PRDownloader.pause(downloadIdOne);
             return;
         }
-
         performDownload.setEnabled(false);
         downloadProgressBar.setIndeterminate(true);
         downloadProgressBar.getIndeterminateDrawable().setColorFilter(
